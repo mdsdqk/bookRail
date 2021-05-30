@@ -1,1 +1,1 @@
-worker: pyserver.py
+worker: python pyserver.py
