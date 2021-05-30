@@ -1,5 +1,4 @@
-#!/usr/bin/python
-							##replace prints with sendall or appropriate when done
+#!/usr/bin/python						
 from socket import *
 from _thread import *
 from datetime import *
@@ -13,11 +12,11 @@ trainList = addtrains.trainList
 userList = []
 
 def dispTrains():
-	conn.sendall("Trains running are\n")
+	conn.sendall("Trains running are\n".encode())
 	for i in range(0, len(trainList)):
 		temp = [ trainList[i].number, trainList[i].name, trainList[i].source, trainList[i].dep, trainList[i].dest, trainList[i].arr ]
-		conn.sendall(str(temp))
-		conn.sendall('\n')
+		conn.sendall(str(temp).encode())
+		conn.sendall('\n'.encode())
 	
 def findTrains(src, dest):
 	foundList = []
@@ -27,40 +26,40 @@ def findTrains(src, dest):
 			foundList.append(temp)
 
 	if len(foundList) == 0:
-		conn.sendall("No Trains found between the given route :(")
-		conn.sendall('\n')
+		conn.sendall("No Trains found between the given route :(".encode())
+		conn.sendall('\n'.encode())
 	
 	else:
 		conn.sendall("Trains from " + src + " to " + dest + "\n")
 		for i in range(0, len(foundList)):
-			conn.sendall(str(foundList[i]))
-			conn.sendall("\n")
+			conn.sendall(str(foundList[i]).encode())
+			conn.sendall("\n".encode())
 
 def trainNumIn():
 	while 1:
 		msg = 'Enter train number to proceed'
-		conn.sendall(msg)
-		conn.sendall("\n")
-		recvd = conn.recv(1024)
+		conn.sendall(msg.encode())
+		conn.sendall("\n".encode())
+		recvd = conn.recv(1024).decode()
 		if len(recvd) == 5:
 			return recvd
 			break
 		else:
-			conn.sendall("Invalid Train Number")
-			conn.sendall("\n")
+			conn.sendall("Invalid Train Number".encode())
+			conn.sendall("\n".encode())
 
 def trainInfo(number):
 	temp = "null"
 	for i in range(0, len(trainList)):
 		if number == trainList[i].number:
 			temp = [ trainList[i].number, trainList[i].name, trainList[i].source, trainList[i].dep, trainList[i].dest, trainList[i].arr ]
-			conn.sendall(str(temp))
-			conn.sendall("\n")
+			conn.sendall(str(temp).encode())
+			conn.sendall("\n".encode())
 			break
 
 	if temp == "null":
-		conn.sendall("No train with the given number found")
-		conn.sendall("\n")
+		conn.sendall("No train with the given number found".encode())
+		conn.sendall("\n".encode())
 
 def checkAvail(number, date, x):
 	for i in range(0, len(trainList)):
@@ -69,7 +68,7 @@ def checkAvail(number, date, x):
 			break
 
 	res = temp.availability(date, x)
-	conn.sendall(str(res))
+	conn.sendall(str(res).encode())
 
 def book(number, date, travelClass, seatNum, conn, uid):
 	for i in range(0, len(trainList)):
@@ -80,33 +79,33 @@ def book(number, date, travelClass, seatNum, conn, uid):
 	ret = temp.seatBook(date, travelClass, seatNum, conn, uid)
 
 	if ret == -1:
-		conn.sendall("Seat Not Available\n")
+		conn.sendall("Seat Not Available\n".encode())
 	
 	elif ret == 0:
-		conn.sendall("Seat has been blocked by someone else, please select some other seat or try again later\n")
+		conn.sendall("Seat has been blocked by someone else, please select some other seat or try again later\n".encode())
 
 	elif ret == 1:
 		tempuser = getUser(uid)
-		conn.sendall("Ticket Details are\nName : " + str(tempuser.uname) + "\tAge : " + str(tempuser.age) + "\nEmail : " + str(tempuser.email) + "\nPhone : " + str(tempuser.phone))
-		conn.sendall("\n\n")
+		conn.sendall(("Ticket Details are\nName : " + str(tempuser.uname) + "\tAge : " + str(tempuser.age) + "\nEmail : " + str(tempuser.email) + "\nPhone : " + str(tempuser.phone)).encode())
+		conn.sendall("\n\n".encode())
 
 def welcomeinit():
-	conn.sendall("Enter user id\n")
-	uid = conn.recv(1024)
-	conn.sendall("Enter Name\n")
-	uname = conn.recv(1024)
-	conn.sendall("Enter age\n")
-	age = conn.recv(1024)
-	conn.sendall("Enter gender\n")
-	gender = conn.recv(1024)
-	conn.sendall("Enter email\n")
-	email = conn.recv(1024)
-	conn.sendall("Enter phone\n")
-	phone = conn.recv(1024)
+	conn.sendall("Enter user id\n".encode())
+	uid = conn.recv(1024).decode()
+	conn.sendall("Enter Name\n".encode())
+	uname = conn.recv(1024).decode()
+	conn.sendall("Enter age\n".encode())
+	age = conn.recv(1024).decode()
+	conn.sendall("Enter gender\n".encode())
+	gender = conn.recv(1024).decode()
+	conn.sendall("Enter email\n".encode())
+	email = conn.recv(1024).decode()
+	conn.sendall("Enter phone\n".encode())
+	phone = conn.recv(1024).decode()
 
 	for i in range(0, len(userList)):
 		if uid == userList[i].uid:
-			conn.sendall("Welcome back " + userList[i].name + "\n")
+			conn.sendall(("Welcome back " + userList[i].name + "\n").encode())
 			return uid
 
 	obj = train.user(uid, uname, age, gender, email, phone)
@@ -132,22 +131,15 @@ except error as msg:
 sock.listen(5)
 print("Socket now Listening on port " + str(port))
 
-#Required for py3
-#def strToBytes(strToConvert):
-#	return str.encode(strToConvert, "UTF-8")
-#
-#def bytesToStr(dataToConvert):
-#	return str(dataToConvert, "UTF-8")
-
 def clientthread(conn):
 	hellomsg = 'Hi there!, Welcome to Railway Booking System\n'
-	conn.sendall(hellomsg)
+	conn.sendall(hellomsg.encode())
 	uid = welcomeinit()
 	while True:
 		msg = 'Enter...\n1 to see all the running trains\n2 to search trains\n3 to get train info by train number\n4 to check availibilty\n5 to book a seat\n6 to visit profile\n9 to exit'
-		conn.sendall(msg)
-		conn.sendall("\n")
-		data = conn.recv(1024)
+		conn.sendall(msg.encode())
+		conn.sendall("\n".encode())
+		data = conn.recv(1024).decode()
 		if int(data) == 9:
 			conn.close()
 			exit()
@@ -159,13 +151,13 @@ def clientthread(conn):
 
 		elif int(data) == 2:
 			msg = 'Enter Source - Destination (in the given format, e.g.- Bengaluru - Mysuru)\n'
-			conn.sendall(msg + "\n")
-			recieved = conn.recv(1024)
+			conn.sendall((msg + "\n").encode())
+			recieved = conn.recv(1024).decode()
 			src,dest = recieved.strip(' ').split('-')
 			findTrains(src, dest)
-			conn.sendall("\nEnter..\nTrain number to check availibility for that train\n0 to go back")
-			conn.sendall("\n")
-			if int(conn.recv(1024)) == 0:
+			conn.sendall("\nEnter..\nTrain number to check availibility for that train\n0 to go back".encode())
+			conn.sendall("\n".encode())
+			if int(conn.recv(1024).decode()) == 0:
 				continue
 			else:
 				data = 4
@@ -177,21 +169,21 @@ def clientthread(conn):
 
 		elif int(data) == 4 or int(data) == 5:
 			trNum = trainNumIn()
-			conn.sendall("Enter date and class in 'dd-mm-yyyy,c' format where c = 0 for all, 1 for sl, 2 for 3ac, 3 for 2ac, and 4 for first class")
-			conn.sendall("\n")
-			recvd = conn.recv(1024)
+			conn.sendall("Enter date and class in 'dd-mm-yyyy,c' format where c = 0 for all, 1 for sl, 2 for 3ac, 3 for 2ac, and 4 for first class".encode())
+			conn.sendall("\n".encode())
+			recvd = conn.recv(1024).decode()
 			date, x = recvd.strip(" ").split(",")
 			checkAvail(int(trNum), date, int(x))
-			conn.sendall('Enter\n1 to book\n0 to return to main menu')
-			conn.sendall("\n")
-			if(int(conn.recv(1024)) == 0):
+			conn.sendall('Enter\n1 to book\n0 to return to main menu'.encode())
+			conn.sendall("\n".encode())
+			if(int(conn.recv(1024).decode()) == 0):
 				continue
 
 			else:
 				temp = getUser(uid)
 				if int(x) == 0:
-					conn.sendall('Enter Class (sl, third, second, first), seat number to book a seat\n')
-					rcvd = conn.recv(1024)
+					conn.sendall('Enter Class (sl, third, second, first), seat number to book a seat\n'.encode())
+					rcvd = conn.recv(1024).decode()
 					x, seatNum = rcvd.strip(' ').split(',')
 				
 				else:
@@ -203,33 +195,30 @@ def clientthread(conn):
 						x = "second"
 					if int(x) == 4:
 						x = "first"
-					conn.sendall('Enter seat Number to book')
-					conn.sendall("\n")
-					seatNum = conn.recv(1024)
+					conn.sendall('Enter seat Number to book'.encode())
+					conn.sendall("\n".encode())
+					seatNum = conn.recv(1024).decode()
 
 				book(int(trNum), date, x, int(seatNum), conn, uid)
 		
 		elif int(data) == 6:
-			conn.sendall("Profile\n")
+			conn.sendall("Profile\n".encode())
 			tempuser = getUser(uid)
 			
-			conn.sendall("Name " + tempuser.uname + "\n")
-			conn.sendall("Username " + tempuser.uid + "\n")
-			conn.sendall("Age " + tempuser.age + "\n")
-			conn.sendall("Email id" + tempuser.email + "\n")
-			conn.sendall("Press 1 to check your booking history\n0 to go back")
-			resp = conn.recv(1024)
+			conn.sendall(("Name " + tempuser.uname + "\n").encode())
+			conn.sendall(("Username " + tempuser.uid + "\n").encode())
+			conn.sendall(("Age " + tempuser.age + "\n").encode())
+			conn.sendall(("Email id" + tempuser.email + "\n").encode())
+			conn.sendall(("Press 1 to check your booking history\n0 to go back").encode())
+			resp = conn.recv(1024).decode()
 			if resp == 1:
-				conn.sendall("\nhere is your booking history\n")
-				conn.sendall(str(temp.bookings) + "\n")
+				conn.sendall("\nhere is your booking history\n".encode())
+				conn.sendall((str(temp.bookings) + "\n").encode())
 				continue
 
 			if resp == 0:
 				continue
 			
-
-
-
 while 1:
 	conn, addr = sock.accept()
 	print ('Connected with ' + addr[0] + ':' + str(addr[1]))
